@@ -1,3 +1,27 @@
+# The built program
+/myapp
+
+# VSCode
+.vscode/*.log
+
+# Backup files (sometimes by autoreconf)
+*~
+
+# Build
+.deps
+.libs
+libtool
+*.la
+*.o
+*.lo
+.dirstamp
+/config.h
+/tests/mocks
+/tests/runners
+/tests/test_*.log
+/tests/test_*.trs
+test-suite.log
+
 # http://www.gnu.org/software/automake
 
 Makefile.in
@@ -42,8 +66,8 @@ m4/ltsugar.m4
 m4/ltversion.m4
 m4/lt~obsolete.m4
 
-# Generated Makefile 
-# (meta build system like autotools, 
+# Generated Makefile
+# (meta build system like autotools,
 # can automatically generate from config.status script
 # (which is called by configure script))
 Makefile
