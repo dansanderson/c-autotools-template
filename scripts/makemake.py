@@ -335,11 +335,15 @@ def render_module(mod):
     return '\n'.join(parts) + '\n'
 
 
-def render_makefile(mods):
+def render_makefile(root_dir, mods):
     parts = [MAKEFILE_PREAMBLE]
     for m in sorted(mods.keys()):
         parts.append(render_module(mods[m]))
     parts.append(MAKEFILE_POSTABLE)
+
+    if os.path.exists(os.path.join(root_dir, 'project.mk')):
+        with open(os.path.join(root_dir, 'project.mk')) as fh:
+            parts.append(fh.read())
 
     parts = [p for p in parts if p]
     return '\n'.join(parts)
@@ -357,7 +361,7 @@ def main(args):
     tests_dir = os.path.join(args.root_dir, 'tests')
     modcfg = get_module_config(src_dir)
     mods = build_modules(modcfg, src_dir, tests_dir)
-    makefile_txt = render_makefile(mods)
+    makefile_txt = render_makefile(args.root_dir, mods)
 
     makefile_pth = os.path.join(args.root_dir, 'Makefile.am')
     if os.path.exists(makefile_pth):

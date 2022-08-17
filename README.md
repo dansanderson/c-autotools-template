@@ -244,11 +244,31 @@ python3 scripts/superclean.py
 `.gitignore`. `Makefile.am` is safe to delete, if necessary. You can recreate
 it with `scripts/makemake.py`.
 
-## Still to do
+## Defining custom rules
 
-Right now, the entire `Makefile.am` is created by `scripts/makemake.py`. If you
-want to create custom rules or definitions, you must modify this script. I'd
-like to extend this to read customizations from another file.
+If there is a file named `project.mk` in the project root directory, it gets
+concatenated to the end of `Makefile.am` by `makemake.py`.
+
+This is different from a file being `include`d by the final Makefile.
+In particular, `project.mk` can extend Automake variables prior to
+`./configure` running Automake. This also means that `project.mk` is restricted
+to Automake-compatible syntax, which is a subset of Makefile syntax.
+
+The generated `Makefile.am` already defines these list variables, so
+`project.mk` can extend them with the `+=` operator:
+
+* `ACLOCAL_AMFLAGS`
+* `AM_CPPFLAGS`
+* `bin_PROGRAMS`
+* `noinst_LTLIBRARIES`
+* `check_PROGRAMS`
+* `check_LTLIBRARIES`
+* `CLEANFILES`
+* `BUILT_SOURCES`
+* `TESTS`
+* `EXTRA_DIST`
+
+## Still to do
 
 It might be useful to write larger (non-unit) test programs that use a
 combination of real (non-mock) modules and mocks. It'd be nice to support a
