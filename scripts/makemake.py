@@ -59,6 +59,18 @@ AM_CPPFLAGS = \\
     -I$(top_srcdir) \\
     -I$(top_srcdir)/src
 
+if BUILD_LINUX
+AM_CPPFLAGS += -DLINUX
+endif
+if BUILD_WINDOWS
+AM_CPPFLAGS += -DWINDOWS
+endif
+if BUILD_APPLE
+AM_CPPFLAGS += -DAPPLE
+endif
+
+AM_LDFLAGS = -pthread
+
 CMOCK_CPPFLAGS = \\
     -I$(top_srcdir)/third-party/CMock/vendor/unity/src \\
     -I$(top_srcdir)/third-party/CMock/src \\
@@ -98,12 +110,29 @@ MOCK_GENERATION_CMDS = '''\
 \t$(RUBY) $(top_srcdir)/third-party/CMock/scripts/create_mock.rb $<
 ''' # noqa
 
+# EXTRA_DIST: The list of third-party/CMock files is selected to avoid
+# accidentally including previous build output in a source distribution, which
+# can potentially break the dist build.
 MAKEFILE_POSTABLE = '''TESTS = $(check_PROGRAMS)
 
 EXTRA_DIST = \\
     README.md \\
-    third-party/CMock \\
-    scripts
+    scripts \\
+    third-party/CMock/LICENSE.txt \\
+    third-party/CMock/README.md \\
+    third-party/CMock/config \\
+    third-party/CMock/lib \\
+    third-party/CMock/scripts \\
+    third-party/CMock/src/cmock.c \\
+    third-party/CMock/src/cmock.h \\
+    third-party/CMock/src/cmock_internals.h \\
+    third-party/CMock/test \\
+    third-party/CMock/vendor/unity/LICENSE.txt \\
+    third-party/CMock/vendor/unity/README.md \\
+    third-party/CMock/vendor/unity/auto \\
+    third-party/CMock/vendor/unity/src/unity.c \\
+    third-party/CMock/vendor/unity/src/unity.h \\
+    third-party/CMock/vendor/unity/src/unity_internals.h
 ''' # noqa
 
 

@@ -7,6 +7,7 @@
 #
 # ACLOCAL_AMFLAGS +=
 # AM_CPPFLAGS +=
+# AM_LDFLAGS +=
 # bin_PROGRAMS +=
 # noinst_LTLIBRARIES +=
 # check_PROGRAMS +=
