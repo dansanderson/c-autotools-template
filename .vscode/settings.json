@@ -1,9 +1,9 @@
 {
-    "C_Cpp.default.includePath": [
-        ".",
-        "src",
-        "third-party/CMock/src",
-        "third-party/CMock/vendor/unity/src"
-    ],
-    "C_Cpp.default.configurationProvider": "ms-vscode.makefile-tools"
+  "C_Cpp.default.includePath": [
+    ".",
+    "src",
+    "third-party/CMock/src",
+    "third-party/CMock/vendor/unity/src"
+  ],
+  "C_Cpp.default.configurationProvider": "ms-vscode.makefile-tools"
 }
