@@ -1,8 +1,7 @@
 # The built program
 /myapp
-
-# We use a generated Makefile.am, so we don't check it in
-Makefile.am
+/myapp-0.1.tar.gz
+/myapp-0.1
 
 # VSCode
 .vscode/*.log

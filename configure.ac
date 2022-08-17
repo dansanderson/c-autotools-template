@@ -6,8 +6,6 @@ AM_PROG_AR
 AC_PATH_PROG([RUBY], [ruby])
 LT_INIT
 
-AC_CONFIG_COMMANDS_PRE([python3 scripts/makemake.py])
-
 AC_CONFIG_MACRO_DIRS([m4])
 AC_CONFIG_HEADERS([config.h])
 

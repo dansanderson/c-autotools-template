@@ -21,22 +21,12 @@ CMOCK_SRCS = \
     third-party/CMock/src/cmock.h \
     third-party/CMock/src/cmock_internals.h
 
-tests/runners/runner_test_%.c:
-	@test -n "$(RUBY)" || { echo "\nPlease install Ruby to run tests.\n"; exit 1; }
-	$(RUBY) $(top_srcdir)/third-party/CMock/vendor/unity/auto/generate_test_runner.rb $< $@
-
-tests/mocks/mock_%.c:
-	@test -n "$(RUBY)" || { echo "\nPlease install Ruby to run tests.\n"; exit 1; }
-	mkdir -p tests/mocks
-	CMOCK_DIR=$(top_srcdir)/third-party/CMock \
-	MOCK_OUT=tests/mocks \
-	$(RUBY) $(top_srcdir)/third-party/CMock/scripts/create_mock.rb $<
-
 bin_PROGRAMS =
 noinst_LTLIBRARIES =
 check_PROGRAMS =
 check_LTLIBRARIES =
 CLEANFILES =
+BUILT_SOURCES =
 
 CLEANFILES += tests/runners/runner_test_*.c
 
@@ -51,7 +41,12 @@ libcfgfile_la_SOURCES = \
     ./src/cfgfile/cfgmap.h \
     ./src/cfgfile/cfgfile.c
 
-tests/mocks/mock_cfgfile.c: ./src/cfgfile/cfgfile.h
+tests/mocks/mock_cfgfile.c tests/mocks/mock_cfgfile.h: ./src/cfgfile/cfgfile.h
+	@test -n "$(RUBY)" || { echo "\nPlease install Ruby to run tests.\n"; exit 1; }
+	mkdir -p tests/mocks
+	CMOCK_DIR=$(top_srcdir)/third-party/CMock \
+	MOCK_OUT=tests/mocks \
+	$(RUBY) $(top_srcdir)/third-party/CMock/scripts/create_mock.rb $<
 
 check_LTLIBRARIES += libcfgfile_mock.la
 
@@ -68,9 +63,15 @@ CLEANFILES += \
     tests/mocks/mock_cfgfile.c \
     tests/mocks/mock_cfgfile.h
 
+BUILT_SOURCES += \
+    tests/mocks/mock_cfgfile.c \
+    tests/mocks/mock_cfgfile.h
+
 check_PROGRAMS += tests/runners/test_cfgfile
 
 tests/runners/runner_test_cfgfile.c: ./tests/cfgfile/test_cfgfile.c
+	@test -n "$(RUBY)" || { echo "\nPlease install Ruby to run tests.\n"; exit 1; }
+	$(RUBY) $(top_srcdir)/third-party/CMock/vendor/unity/auto/generate_test_runner.rb $< $@
 
 tests_runners_test_cfgfile_SOURCES = \
     tests/runners/runner_test_cfgfile.c \
@@ -95,7 +96,12 @@ libexecutor_la_SOURCES = \
 
 libexecutor_la_LIBADD = libcfgfile.la
 
-tests/mocks/mock_executor.c: ./src/executor/executor.h
+tests/mocks/mock_executor.c tests/mocks/mock_executor.h: ./src/executor/executor.h
+	@test -n "$(RUBY)" || { echo "\nPlease install Ruby to run tests.\n"; exit 1; }
+	mkdir -p tests/mocks
+	CMOCK_DIR=$(top_srcdir)/third-party/CMock \
+	MOCK_OUT=tests/mocks \
+	$(RUBY) $(top_srcdir)/third-party/CMock/scripts/create_mock.rb $<
 
 check_LTLIBRARIES += libexecutor_mock.la
 
@@ -112,9 +118,15 @@ CLEANFILES += \
     tests/mocks/mock_executor.c \
     tests/mocks/mock_executor.h
 
+BUILT_SOURCES += \
+    tests/mocks/mock_executor.c \
+    tests/mocks/mock_executor.h
+
 check_PROGRAMS += tests/runners/test_executor
 
 tests/runners/runner_test_executor.c: ./tests/executor/test_executor.c
+	@test -n "$(RUBY)" || { echo "\nPlease install Ruby to run tests.\n"; exit 1; }
+	$(RUBY) $(top_srcdir)/third-party/CMock/vendor/unity/auto/generate_test_runner.rb $< $@
 
 tests_runners_test_executor_SOURCES = \
     tests/runners/runner_test_executor.c \
@@ -137,7 +149,7 @@ tests_runners_test_executor_LDADD = \
 tests_runners_test_executor_CPPFLAGS = \
     $(CMOCK_CPPFLAGS) \
     $(AM_CPPFLAGS) \
-    -I./src//cfgfile
+    -I$(top_srcdir)/src/cfgfile
 
 
 ### myapp
@@ -161,7 +173,12 @@ libreporter_la_SOURCES = \
 
 libreporter_la_LIBADD = libcfgfile.la
 
-tests/mocks/mock_reporter.c: ./src/reporter/reporter.h
+tests/mocks/mock_reporter.c tests/mocks/mock_reporter.h: ./src/reporter/reporter.h
+	@test -n "$(RUBY)" || { echo "\nPlease install Ruby to run tests.\n"; exit 1; }
+	mkdir -p tests/mocks
+	CMOCK_DIR=$(top_srcdir)/third-party/CMock \
+	MOCK_OUT=tests/mocks \
+	$(RUBY) $(top_srcdir)/third-party/CMock/scripts/create_mock.rb $<
 
 check_LTLIBRARIES += libreporter_mock.la
 
@@ -178,13 +195,14 @@ CLEANFILES += \
     tests/mocks/mock_reporter.c \
     tests/mocks/mock_reporter.h
 
+BUILT_SOURCES += \
+    tests/mocks/mock_reporter.c \
+    tests/mocks/mock_reporter.h
+
 
 TESTS = $(check_PROGRAMS)
 
 EXTRA_DIST = \
     README.md \
-    third-party/CMock/LICENSE.txt \
-    third-party/CMock/scripts/create_mock.rb \
-    third-party/CMock/scripts/test_summary.rb \
-    third-party/CMock/vendor/unity/auto/generate_test_runner.rb \
-    third-party/CMock/vendor/unity/auto/unity_test_summary.rb
+    third-party/CMock \
+    scripts

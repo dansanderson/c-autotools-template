@@ -74,38 +74,37 @@ CMOCK_SRCS = \\
     third-party/CMock/src/cmock.h \\
     third-party/CMock/src/cmock_internals.h
 
-tests/runners/runner_test_%.c:
-\t@test -n "$(RUBY)" || { echo "\\nPlease install Ruby to run tests.\\n"; exit 1; }
-\t$(RUBY) $(top_srcdir)/third-party/CMock/vendor/unity/auto/generate_test_runner.rb $< $@
-
-tests/mocks/mock_%.c:
-\t@test -n "$(RUBY)" || { echo "\\nPlease install Ruby to run tests.\\n"; exit 1; }
-\tmkdir -p tests/mocks
-\tCMOCK_DIR=$(top_srcdir)/third-party/CMock \\
-\tMOCK_OUT=tests/mocks \\
-\t$(RUBY) $(top_srcdir)/third-party/CMock/scripts/create_mock.rb $<
-
 bin_PROGRAMS =
 noinst_LTLIBRARIES =
 check_PROGRAMS =
 check_LTLIBRARIES =
 CLEANFILES =
+BUILT_SOURCES =
 
 CLEANFILES += tests/runners/runner_test_*.c
 
 ''' # noqa
 
+RUNNER_GENERATION_CMDS = '''\
+\t@test -n "$(RUBY)" || { echo "\\nPlease install Ruby to run tests.\\n"; exit 1; }
+\t$(RUBY) $(top_srcdir)/third-party/CMock/vendor/unity/auto/generate_test_runner.rb $< $@
+''' # noqa
+
+MOCK_GENERATION_CMDS = '''\
+\t@test -n "$(RUBY)" || { echo "\\nPlease install Ruby to run tests.\\n"; exit 1; }
+\tmkdir -p tests/mocks
+\tCMOCK_DIR=$(top_srcdir)/third-party/CMock \\
+\tMOCK_OUT=tests/mocks \\
+\t$(RUBY) $(top_srcdir)/third-party/CMock/scripts/create_mock.rb $<
+''' # noqa
 
 MAKEFILE_POSTABLE = '''TESTS = $(check_PROGRAMS)
 
 EXTRA_DIST = \\
     README.md \\
-    third-party/CMock/LICENSE.txt \\
-    third-party/CMock/scripts/create_mock.rb \\
-    third-party/CMock/scripts/test_summary.rb \\
-    third-party/CMock/vendor/unity/auto/generate_test_runner.rb \\
-    third-party/CMock/vendor/unity/auto/unity_test_summary.rb
-'''
+    third-party/CMock \\
+    scripts
+''' # noqa
 
 
 def file_error(fname, message):
@@ -240,8 +239,9 @@ def render_mock(mod):
     if mod.program:
         return ''
 
-    parts = [f'tests/mocks/mock_{mod.name}.c: '
-             f'{mod.source_dir}/{mod.name}.h\n']
+    parts = [f'tests/mocks/mock_{mod.name}.c tests/mocks/mock_{mod.name}.h: '
+             f'{mod.source_dir}/{mod.name}.h\n' +
+             MOCK_GENERATION_CMDS]
     parts.append(render_listvar(
         'check_LTLIBRARIES', [f'lib{mod.library}_mock.la'], is_concat=True))
     parts.append(render_listvar(
@@ -253,6 +253,11 @@ def render_mock(mod):
          f'-I$(top_srcdir)/src/{mod.name}']))
     parts.append(render_listvar(
         'CLEANFILES',
+        [f'tests/mocks/mock_{mod.library}.c',
+         f'tests/mocks/mock_{mod.library}.h'],
+        is_concat=True))
+    parts.append(render_listvar(
+        'BUILT_SOURCES',
         [f'tests/mocks/mock_{mod.library}.c',
          f'tests/mocks/mock_{mod.library}.h'],
         is_concat=True))
@@ -275,7 +280,8 @@ def render_tests(mod):
 
         parts.append(
             f'tests/runners/runner_{test_base}.c: '
-            f'{mod.tests_dir}/{test_base}.c\n')
+            f'{mod.tests_dir}/{test_base}.c\n' +
+            RUNNER_GENERATION_CMDS)
 
         test_srcs = [
             f'tests/runners/runner_{test_base}.c',
@@ -303,8 +309,7 @@ def render_tests(mod):
         parts.append(render_listvar(
             f'tests_runners_{test_base}_LDADD', deplibs))
 
-        srcroot = mod.source_dir[:-len(mod.name)]
-        depcppflags = [f'-I{srcroot}/{d}' for d in mod.deps]
+        depcppflags = [f'-I$(top_srcdir)/src/{d}' for d in mod.deps]
         parts.append(render_listvar(
             f'tests_runners_{test_base}_CPPFLAGS',
             ['$(CMOCK_CPPFLAGS)', '$(AM_CPPFLAGS)'] + depcppflags))
