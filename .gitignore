@@ -1,6 +1,9 @@
 # The built program
 /myapp
 
+# We use a generated Makefile.am, so we don't check it in
+Makefile.am
+
 # VSCode
 .vscode/*.log
 
@@ -21,6 +24,10 @@ libtool
 /tests/test_*.log
 /tests/test_*.trs
 test-suite.log
+
+# Python
+.mypy_cache
+__pycache__
 
 # http://www.gnu.org/software/automake
 
