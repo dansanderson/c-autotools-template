@@ -160,7 +160,8 @@ myapp_SOURCES = ./src/myapp/myapp.c
 
 myapp_LDADD = \
     libexecutor.la \
-    libreporter.la
+    libreporter.la \
+    libtestmod.la
 
 
 ### reporter
@@ -198,6 +199,59 @@ CLEANFILES += \
 BUILT_SOURCES += \
     tests/mocks/mock_reporter.c \
     tests/mocks/mock_reporter.h
+
+
+### testmod
+
+noinst_LTLIBRARIES += libtestmod.la
+
+libtestmod_la_SOURCES = \
+    ./src/testmod/testmod.h \
+    ./src/testmod/testmod.c
+
+tests/mocks/mock_testmod.c tests/mocks/mock_testmod.h: ./src/testmod/testmod.h
+	@test -n "$(RUBY)" || { echo "\nPlease install Ruby to run tests.\n"; exit 1; }
+	mkdir -p tests/mocks
+	CMOCK_DIR=$(top_srcdir)/third-party/CMock \
+	MOCK_OUT=tests/mocks \
+	$(RUBY) $(top_srcdir)/third-party/CMock/scripts/create_mock.rb $<
+
+check_LTLIBRARIES += libtestmod_mock.la
+
+libtestmod_mock_la_SOURCES = \
+    tests/mocks/mock_testmod.c \
+    $(CMOCK_SRCS)
+
+libtestmod_mock_la_CPPFLAGS = \
+    $(CMOCK_CPPFLAGS) \
+    $(AM_CPPFLAGS) \
+    -I$(top_srcdir)/src/testmod
+
+CLEANFILES += \
+    tests/mocks/mock_testmod.c \
+    tests/mocks/mock_testmod.h
+
+BUILT_SOURCES += \
+    tests/mocks/mock_testmod.c \
+    tests/mocks/mock_testmod.h
+
+check_PROGRAMS += tests/runners/test_testmod
+
+tests/runners/runner_test_testmod.c: ./tests/testmod/test_testmod.c
+	@test -n "$(RUBY)" || { echo "\nPlease install Ruby to run tests.\n"; exit 1; }
+	$(RUBY) $(top_srcdir)/third-party/CMock/vendor/unity/auto/generate_test_runner.rb $< $@
+
+tests_runners_test_testmod_SOURCES = \
+    tests/runners/runner_test_testmod.c \
+    ./tests/testmod/test_testmod.c \
+    ./src/testmod/testmod.h \
+    $(UNITYTEST_SRCS)
+
+tests_runners_test_testmod_LDADD = libtestmod.la
+
+tests_runners_test_testmod_CPPFLAGS = \
+    $(CMOCK_CPPFLAGS) \
+    $(AM_CPPFLAGS)
 
 
 TESTS = $(check_PROGRAMS)

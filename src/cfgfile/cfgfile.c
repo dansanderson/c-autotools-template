@@ -4,6 +4,8 @@
 #include "cfgfile.h"
 #include "cfgmap.h"
 
+char cfgfile_publicbuf[1024];
+
 static char tempbuf[1024];
 
 static void handle_token(char *token, int len) {

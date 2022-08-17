@@ -12,6 +12,14 @@ A project based on this template organizes its C code into modules, defined
 below. You use a tool to generate the `Makefile.am` from the module layout and
 configuration.
 
+The tools discussed below include:
+
+* `python3 scripts/makemake.py` : Generate the `Makefile.am` based on module
+  sources and `module.cfg` files
+* `python3 scripts/newmod.py` : Generate source files for a new module
+* `python3 scripts/superclean.py` : Clean up the project directory by deleting
+  all files ignored by Git
+
 ## C Modules
 
 A _module_ is a self-contained collection of functionality, implemented as one
@@ -244,6 +252,17 @@ python3 scripts/superclean.py
 `.gitignore`. `Makefile.am` is safe to delete, if necessary. You can recreate
 it with `scripts/makemake.py`.
 
+## Creating new modules
+
+Module source files are simple enough that you can create them by hand. I
+wanted this to be even easier, so there's a script:
+
+```text
+python3 scripts/newmod.py modulename
+
+python3 scripts/newmod.py --program modulename
+```
+
 ## Defining custom rules
 
 If there is a file named `project.mk` in the project root directory, it gets
@@ -275,30 +294,33 @@ combination of real (non-mock) modules and mocks. It'd be nice to support a
 `test.cfg` file that could request a linkage combination for a given
 test suite, without the need for custom rules.
 
-The name prefix best practices are important enough that it'd be good to have a
-script that validates that they are followed.
-
-Modules are easy enough to create by hand, but it'd be even easier if there
-were a script that can create new modules from a template.
-
 It's not obvious how to mock third-party libraries. It may be sufficient to run
 the CMock generator tool on a third-party library header file. This is not yet
-a built-in facility of `makemake.py`.
+a built-in facility of `makemake.py`. (This could be another feature of
+`test.cfg` files.)
+
+The name prefix best practices are important enough that it'd be good to have a
+script that validates that they are followed consistently. The compiler will
+report collisions, but it won't report non-collisions that might become
+collisions later.
 
 ## License
 
 This template and related tools are released under [The
 Unlicense](https://unlicense.org). See [LICENSE](./LICENSE) for complete text.
-You are _not_ required to use this license for your project.
+
+You are _not_ required to use this license for your project. Replace the
+`LICENSE` file with whatever is appropriate.
 
 ## Note from the author
 
 I started this thinking it'd just be a demonstration of novice best practices
 for organizing a GNU Autotools project. I tried to avoid writing a module
 management tool, but I couldn't get the `Makefile.am` boilerplate for tests and
-mocks succinct enough to my satisfaction. I concluded that writing my own tool
-would be better for my projects than trying to reuse other module management
-systems like
+mocks succinct enough to my satisfaction. In particular, Automake does not
+allow certain macro-like features of plain Makefiles. I concluded that writing
+my own tool would be better for my projects than trying to reuse other module
+management systems like
 [gnulib-tool](https://www.gnu.org/software/gnulib/manual/html_node/Invoking-gnulib_002dtool.html).
 
 Feedback is welcome! If you have ideas for how this can be improved,
