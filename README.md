@@ -12,14 +12,6 @@ A project based on this template organizes its C code into modules, defined
 below. You use a tool to generate the `Makefile.am` from the module layout and
 configuration.
 
-The tools discussed below include:
-
-* `python3 scripts/makemake.py` : Generate the `Makefile.am` based on module
-  sources and `module.cfg` files
-* `python3 scripts/newmod.py` : Generate source files for a new module
-* `python3 scripts/superclean.py` : Clean up the project directory by deleting
-  all files ignored by Git
-
 ## C Modules
 
 A _module_ is a self-contained collection of functionality, implemented as one
@@ -176,12 +168,25 @@ recommended to commit the generated `Makefile.am` to the project repo.
 
 ## Building the project and running Autotools targets
 
-After the `Makefile.am` file is generated, you can use GNU Autotools as normal:
+After the `Makefile.am` file is generated, you can use GNU Autotools as normal.
 
 ```text
 autoreconf --install
 ./configure
 make
+```
+
+To build all programs:
+
+```text
+make
+```
+
+To build just one program, use the name of the program module as the make
+target:
+
+```text
+make myapp
 ```
 
 To build and run all unit tests:
@@ -190,10 +195,35 @@ To build and run all unit tests:
 make check
 ```
 
+To build all unit tests and run a specific test suite:
+
+```text
+make check TESTS='tests/runners/test_cfgfile'
+```
+
 To make and validate the source distribution:
 
 ```text
 make distcheck
+```
+
+In general:
+
+* Run `autoreconf --install` then `./configure` after checking out the repo for
+  the first time, or after running `python3 scripts/superclean.py`.
+* Run `python3 scripts/makemake.py` then `./configure` after creating or
+  deleting files, after changing a `module.cfg`, or after `make distclean`.
+* Running `make` or `make check` is otherwise sufficient when changing source files.
+
+In theory, none of these commands causes permanent damage, and any can be
+re-run at any time. To completely reset the workspace:
+
+```text
+python3 scripts/superclean.py
+autoreconf --install
+python3 scripts/makemake.py
+./configure
+make
 ```
 
 ## Running and debugging a unit test
@@ -201,12 +231,6 @@ make distcheck
 Each test suite is built to a "runner" program, then run as part of
 `make check`. The runner programs are created under `tests/runners/`, and named
 after the test suite source file.
-
-To build all unit tests and run a specific test suite:
-
-```text
-make check TESTS='tests/runners/test_cfgfile'
-```
 
 To build just one test suite runner:
 
@@ -357,6 +381,16 @@ The generated `Makefile.am` already defines these list variables, so
 * `EXTRA_DIST`
 
 ## Still to do
+
+More work is likely needed to make this template extensible enough for large
+real-world projects. For example, it might be useful for module source and test
+directories to be able to define additional Automake definitions, such as in a
+`module.mk` file that gets inserted in the appropriate place in `Makefile.am`.
+
+Creating or deleting source files requires re-running `makemake.py` and
+`./configure`. It would be nice if `make` could detect this case and re-run
+them automatically, similarly to how Automake can do this for some kinds of
+changes.
 
 It might be useful to write larger (non-unit) test programs that use a
 combination of real (non-mock) modules and mocks. It'd be nice to support a
