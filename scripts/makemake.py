@@ -122,16 +122,9 @@ EXTRA_DIST = \\
     third-party/CMock/config \\
     third-party/CMock/lib \\
     third-party/CMock/scripts \\
-    third-party/CMock/src/cmock.c \\
-    third-party/CMock/src/cmock.h \\
-    third-party/CMock/src/cmock_internals.h \\
-    third-party/CMock/test \\
     third-party/CMock/vendor/unity/LICENSE.txt \\
     third-party/CMock/vendor/unity/README.md \\
-    third-party/CMock/vendor/unity/auto \\
-    third-party/CMock/vendor/unity/src/unity.c \\
-    third-party/CMock/vendor/unity/src/unity.h \\
-    third-party/CMock/vendor/unity/src/unity_internals.h
+    third-party/CMock/vendor/unity/auto
 ''' # noqa
 
 
