@@ -362,6 +362,10 @@ def render_module(mod):
     parts.append(render_mock(mod))
     parts.append(render_tests(mod))
 
+    if os.path.exists(os.path.join(mod.source_dir, 'module.mk')):
+        with open(os.path.join(mod.source_dir, 'module.mk')) as fh:
+            parts.append(fh.read())
+
     parts = [p for p in parts if p]
     return '\n'.join(parts) + '\n'
 

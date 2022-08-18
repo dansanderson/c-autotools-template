@@ -363,16 +363,22 @@ supports the following targets:
 
 ## Defining custom rules
 
-If there is a file named `project.mk` in the project root directory, it gets
-concatenated to the end of `Makefile.am` by `makemake.py`.
+You'll need to extend Automake definitions to link in additional libraries.
+If provided, `makemake.py` will insert certain files into the generated
+`Makefile.am`, so you don't need to modify the `makemake.py` script directly.
 
-This is different from a file being `include`d by the final Makefile.
-In particular, `project.mk` can extend Automake variables prior to
-`./configure` running Automake. This also means that `project.mk` is restricted
-to Automake-compatible syntax, which is a subset of Makefile syntax.
+* `project.mk`, in the project root directory, gets added to the end of
+  `Makefile.am`.
+* `module.mk`, in a module source directory, gets added to the end of the
+  module's section in `Makefile.am`.
 
-The generated `Makefile.am` already defines these list variables, so
-`project.mk` can extend them with the `+=` operator:
+This insertion is different from a file being `include`d by the final Makefile.
+In particular, `project.mk` and `module.mk` can extend Automake variables prior
+to `./configure` running Automake. This also means that these files are
+restricted to Automake-compatible syntax, which is a subset of Makefile syntax.
+
+The generated `Makefile.am` defines these list variables, so these files can
+extend them with the `+=` operator:
 
 * `ACLOCAL_AMFLAGS`
 * `AM_CPPFLAGS`
@@ -386,24 +392,26 @@ The generated `Makefile.am` already defines these list variables, so
 * `TESTS`
 * `EXTRA_DIST`
 
+The module section also defines these, which can be extended similarly in
+`module.mk` (where `{modname}` is the module name):
+
+* `lib{modname}_la_SOURCES`
+* `lib{modname}_la_LIBADD` for library modules
+* `{modname}_LDADD` for program modules
+
+Each test suite generates these (where `{suitename}` is the test suite name,
+typically `test_{modname}`):
+
+* `tests_runners_{suitename}_SOURCES`
+* `tests_runners_{suitename}_LDADD`
+* `tests_runners_{suitename}_CPPFLAGS`
+
 ## Still to do
 
-More work is likely needed to make this template extensible enough for large
-real-world projects. For example, it might be useful for module source and test
-directories to be able to define additional Automake definitions, such as in a
-`module.mk` file that gets inserted in the appropriate place in `Makefile.am`.
-At the very least, this is a minor improvement over adding module-specific
-rules to `project.mk`, such as for linking in third-party libraries.
-
-Creating or deleting source files requires re-running `makemake.py` and
-`./configure`. It would be nice if `make` could detect this case and re-run
-them automatically, similarly to how Automake can do this for some kinds of
-changes.
-
 It might be useful to write larger (non-unit) test programs that use a
-combination of real (non-mock) modules and mocks. It'd be nice to support a
-`test.cfg` file that could request a linkage combination for a given
-test suite, without the need for custom rules.
+combination of real (non-mock) modules and mocks. A `test.cfg` file that could
+request a linkage combination for a given test suite, without the need for
+custom rules.
 
 It's not obvious how to mock third-party libraries. It may be sufficient to run
 the CMock generator tool on a third-party library header file. This is not yet
@@ -431,8 +439,7 @@ You are _not_ required to use this license for your project. Replace the
 I started this thinking it'd just be a demonstration of novice best practices
 for organizing a GNU Autotools project. I tried to avoid writing a module
 management tool, but I couldn't get the `Makefile.am` boilerplate for tests and
-mocks succinct enough to my satisfaction. In particular, Automake does not
-allow certain macro-like features of plain Makefiles. I concluded that writing
+mocks succinct enough to my satisfaction. I concluded that writing
 my own tool would be better for my projects than trying to reuse other module
 management systems like
 [gnulib-tool](https://www.gnu.org/software/gnulib/manual/html_node/Invoking-gnulib_002dtool.html).
@@ -445,4 +452,4 @@ welcome, though please pardon me if I take a while to respond.
 
 Thanks!
 
-— Dan ([contact@dansanderson.com])
+— Dan (contact@dansanderson.com)

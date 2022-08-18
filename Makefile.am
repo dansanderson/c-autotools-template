@@ -262,6 +262,8 @@ tests_runners_test_testmod_CPPFLAGS = \
     $(CMOCK_CPPFLAGS) \
     $(AM_CPPFLAGS)
 
+# Example module.mk
+
 
 TESTS = $(check_PROGRAMS)
 
