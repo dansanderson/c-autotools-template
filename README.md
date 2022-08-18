@@ -12,6 +12,12 @@ A project based on this template organizes its C code into modules, defined
 below. You use a tool to generate the `Makefile.am` from the module layout and
 configuration.
 
+**Note:** Be sure to clone this repo (or your own project repo based on this
+repo) with `git clone --recurse-submodules` so that the CMock testing library
+in `third-party/` and its submodules are also installed. If you omitted this
+when cloning, run this to finish the process:
+`git submodule update --init --recursive`
+
 ## C Modules
 
 A _module_ is a self-contained collection of functionality, implemented as one
@@ -386,6 +392,8 @@ More work is likely needed to make this template extensible enough for large
 real-world projects. For example, it might be useful for module source and test
 directories to be able to define additional Automake definitions, such as in a
 `module.mk` file that gets inserted in the appropriate place in `Makefile.am`.
+At the very least, this is a minor improvement over adding module-specific
+rules to `project.mk`, such as for linking in third-party libraries.
 
 Creating or deleting source files requires re-running `makemake.py` and
 `./configure`. It would be nice if `make` could detect this case and re-run

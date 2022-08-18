@@ -76,22 +76,22 @@ CMOCK_CPPFLAGS = \\
     -I$(top_srcdir)/third-party/CMock/src \\
     -Itests/mocks
 
-UNITYTEST_SRCS = \\
-    third-party/CMock/vendor/unity/src/unity.c \\
-    third-party/CMock/vendor/unity/src/unity.h \\
-    third-party/CMock/vendor/unity/src/unity_internals.h
-
-CMOCK_SRCS = \\
-    third-party/CMock/src/cmock.c \\
-    third-party/CMock/src/cmock.h \\
-    third-party/CMock/src/cmock_internals.h
-
 bin_PROGRAMS =
 noinst_LTLIBRARIES =
 check_PROGRAMS =
 check_LTLIBRARIES =
 CLEANFILES =
 BUILT_SOURCES =
+
+check_LTLIBRARIES += libcmock.la
+libcmock_la_SOURCES = \\
+    third-party/CMock/src/cmock.c \\
+    third-party/CMock/src/cmock.h \\
+    third-party/CMock/src/cmock_internals.h \\
+    third-party/CMock/vendor/unity/src/unity.c \\
+    third-party/CMock/vendor/unity/src/unity.h \\
+    third-party/CMock/vendor/unity/src/unity_internals.h
+libcmock_la_CPPFLAGS = $(CMOCK_CPPFLAGS)
 
 CLEANFILES += tests/runners/runner_test_*.c
 
@@ -117,7 +117,6 @@ MAKEFILE_POSTABLE = '''TESTS = $(check_PROGRAMS)
 
 EXTRA_DIST = \\
     README.md \\
-    scripts \\
     third-party/CMock/LICENSE.txt \\
     third-party/CMock/README.md \\
     third-party/CMock/config \\
@@ -275,11 +274,15 @@ def render_mock(mod):
         'check_LTLIBRARIES', [f'lib{mod.library}_mock.la'], is_concat=True))
     parts.append(render_listvar(
         f'lib{mod.library}_mock_la_SOURCES',
-        [f'tests/mocks/mock_{mod.name}.c', '$(CMOCK_SRCS)']))
+        [f'tests/mocks/mock_{mod.name}.c']))
     parts.append(render_listvar(
         f'lib{mod.library}_mock_la_CPPFLAGS',
         ['$(CMOCK_CPPFLAGS)', '$(AM_CPPFLAGS)',
          f'-I$(top_srcdir)/src/{mod.name}']))
+    parts.append(render_listvar(
+        f'lib{mod.library}_mock_la_LIBADD',
+        ['libcmock.la']))
+
     parts.append(render_listvar(
         'CLEANFILES',
         [f'tests/mocks/mock_{mod.library}.c',
@@ -315,8 +318,7 @@ def render_tests(mod):
         test_srcs = [
             f'tests/runners/runner_{test_base}.c',
             f'{mod.tests_dir}/{test_base}.c',
-            f'{mod.source_dir}/{mod.library}.h',
-            '$(UNITYTEST_SRCS)']
+            f'{mod.source_dir}/{mod.library}.h']
         parts.append(render_listvar(
             f'tests_runners_{test_base}_SOURCES', test_srcs))
 
@@ -332,7 +334,7 @@ def render_tests(mod):
                 ' \\\n    '.join(built_sources) +
                 '\n')
 
-        deplibs = [f'lib{mod.library}.la']
+        deplibs = [f'libcmock.la lib{mod.library}.la']
         for d in mod.deps:
             deplibs.append(f'lib{d}_mock.la')
         parts.append(render_listvar(

@@ -23,22 +23,22 @@ CMOCK_CPPFLAGS = \
     -I$(top_srcdir)/third-party/CMock/src \
     -Itests/mocks
 
-UNITYTEST_SRCS = \
-    third-party/CMock/vendor/unity/src/unity.c \
-    third-party/CMock/vendor/unity/src/unity.h \
-    third-party/CMock/vendor/unity/src/unity_internals.h
-
-CMOCK_SRCS = \
-    third-party/CMock/src/cmock.c \
-    third-party/CMock/src/cmock.h \
-    third-party/CMock/src/cmock_internals.h
-
 bin_PROGRAMS =
 noinst_LTLIBRARIES =
 check_PROGRAMS =
 check_LTLIBRARIES =
 CLEANFILES =
 BUILT_SOURCES =
+
+check_LTLIBRARIES += libcmock.la
+libcmock_la_SOURCES = \
+    third-party/CMock/src/cmock.c \
+    third-party/CMock/src/cmock.h \
+    third-party/CMock/src/cmock_internals.h \
+    third-party/CMock/vendor/unity/src/unity.c \
+    third-party/CMock/vendor/unity/src/unity.h \
+    third-party/CMock/vendor/unity/src/unity_internals.h
+libcmock_la_CPPFLAGS = $(CMOCK_CPPFLAGS)
 
 CLEANFILES += tests/runners/runner_test_*.c
 
@@ -62,14 +62,14 @@ tests/mocks/mock_cfgfile.c tests/mocks/mock_cfgfile.h: ./src/cfgfile/cfgfile.h
 
 check_LTLIBRARIES += libcfgfile_mock.la
 
-libcfgfile_mock_la_SOURCES = \
-    tests/mocks/mock_cfgfile.c \
-    $(CMOCK_SRCS)
+libcfgfile_mock_la_SOURCES = tests/mocks/mock_cfgfile.c
 
 libcfgfile_mock_la_CPPFLAGS = \
     $(CMOCK_CPPFLAGS) \
     $(AM_CPPFLAGS) \
     -I$(top_srcdir)/src/cfgfile
+
+libcfgfile_mock_la_LIBADD = libcmock.la
 
 CLEANFILES += \
     tests/mocks/mock_cfgfile.c \
@@ -88,10 +88,9 @@ tests/runners/runner_test_cfgfile.c: ./tests/cfgfile/test_cfgfile.c
 tests_runners_test_cfgfile_SOURCES = \
     tests/runners/runner_test_cfgfile.c \
     ./tests/cfgfile/test_cfgfile.c \
-    ./src/cfgfile/cfgfile.h \
-    $(UNITYTEST_SRCS)
+    ./src/cfgfile/cfgfile.h
 
-tests_runners_test_cfgfile_LDADD = libcfgfile.la
+tests_runners_test_cfgfile_LDADD = libcmock.la libcfgfile.la
 
 tests_runners_test_cfgfile_CPPFLAGS = \
     $(CMOCK_CPPFLAGS) \
@@ -117,14 +116,14 @@ tests/mocks/mock_executor.c tests/mocks/mock_executor.h: ./src/executor/executor
 
 check_LTLIBRARIES += libexecutor_mock.la
 
-libexecutor_mock_la_SOURCES = \
-    tests/mocks/mock_executor.c \
-    $(CMOCK_SRCS)
+libexecutor_mock_la_SOURCES = tests/mocks/mock_executor.c
 
 libexecutor_mock_la_CPPFLAGS = \
     $(CMOCK_CPPFLAGS) \
     $(AM_CPPFLAGS) \
     -I$(top_srcdir)/src/executor
+
+libexecutor_mock_la_LIBADD = libcmock.la
 
 CLEANFILES += \
     tests/mocks/mock_executor.c \
@@ -143,8 +142,7 @@ tests/runners/runner_test_executor.c: ./tests/executor/test_executor.c
 tests_runners_test_executor_SOURCES = \
     tests/runners/runner_test_executor.c \
     ./tests/executor/test_executor.c \
-    ./src/executor/executor.h \
-    $(UNITYTEST_SRCS)
+    ./src/executor/executor.h
 
 nodist_tests_runners_test_executor_SOURCES = \
     tests/mocks/mock_cfgfile.c \
@@ -155,7 +153,7 @@ tests/runners/test_executor-runner_test_executor.$(OBJEXT): \
     tests/mocks/mock_cfgfile.h
 
 tests_runners_test_executor_LDADD = \
-    libexecutor.la \
+    libcmock.la libexecutor.la \
     libcfgfile_mock.la
 
 tests_runners_test_executor_CPPFLAGS = \
@@ -195,14 +193,14 @@ tests/mocks/mock_reporter.c tests/mocks/mock_reporter.h: ./src/reporter/reporter
 
 check_LTLIBRARIES += libreporter_mock.la
 
-libreporter_mock_la_SOURCES = \
-    tests/mocks/mock_reporter.c \
-    $(CMOCK_SRCS)
+libreporter_mock_la_SOURCES = tests/mocks/mock_reporter.c
 
 libreporter_mock_la_CPPFLAGS = \
     $(CMOCK_CPPFLAGS) \
     $(AM_CPPFLAGS) \
     -I$(top_srcdir)/src/reporter
+
+libreporter_mock_la_LIBADD = libcmock.la
 
 CLEANFILES += \
     tests/mocks/mock_reporter.c \
@@ -230,14 +228,14 @@ tests/mocks/mock_testmod.c tests/mocks/mock_testmod.h: ./src/testmod/testmod.h
 
 check_LTLIBRARIES += libtestmod_mock.la
 
-libtestmod_mock_la_SOURCES = \
-    tests/mocks/mock_testmod.c \
-    $(CMOCK_SRCS)
+libtestmod_mock_la_SOURCES = tests/mocks/mock_testmod.c
 
 libtestmod_mock_la_CPPFLAGS = \
     $(CMOCK_CPPFLAGS) \
     $(AM_CPPFLAGS) \
     -I$(top_srcdir)/src/testmod
+
+libtestmod_mock_la_LIBADD = libcmock.la
 
 CLEANFILES += \
     tests/mocks/mock_testmod.c \
@@ -256,10 +254,9 @@ tests/runners/runner_test_testmod.c: ./tests/testmod/test_testmod.c
 tests_runners_test_testmod_SOURCES = \
     tests/runners/runner_test_testmod.c \
     ./tests/testmod/test_testmod.c \
-    ./src/testmod/testmod.h \
-    $(UNITYTEST_SRCS)
+    ./src/testmod/testmod.h
 
-tests_runners_test_testmod_LDADD = libtestmod.la
+tests_runners_test_testmod_LDADD = libcmock.la libtestmod.la
 
 tests_runners_test_testmod_CPPFLAGS = \
     $(CMOCK_CPPFLAGS) \
@@ -270,7 +267,6 @@ TESTS = $(check_PROGRAMS)
 
 EXTRA_DIST = \
     README.md \
-    scripts \
     third-party/CMock/LICENSE.txt \
     third-party/CMock/README.md \
     third-party/CMock/config \
