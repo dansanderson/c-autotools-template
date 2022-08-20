@@ -1,9 +1,17 @@
 # c-autotools-template
 
-This is a template for new C projects using GNU Autotools, a tool-assisted
-module system, and unit testing with Unity Test and CMock. It takes a simple
-but opinionated view on module organization and unit testing. This repo
-includes a few example modules illustrating module dependencies and unit tests.
+This is a template for new C projects using [GNU
+Autotools](https://www.gnu.org/software/automake/manual/html_node/index.html),
+a tool-assisted module system, and unit testing with [Unity
+Test](http://www.throwtheswitch.org/unity) and
+[CMock](http://www.throwtheswitch.org/cmock). It takes a simple but opinionated
+view on module organization and unit testing. This repo includes a few example
+modules illustrating module dependencies and unit tests.
+
+This template supposes that a module may consist of multiple source files. For a
+simpler template that assumes single-file modules and does not generate its
+`Makefile.am` with a tool, see
+[dansanderson/c-autotools-template-small](https://github.com/dansanderson/c-autotools-template-small).
 
 Project maintainers need Python 3.x and Ruby 2.x installed. The source
 distribution can be built on any POSIX-compliant system without Python or Ruby.
@@ -449,6 +457,9 @@ fixed, or made more generally useful, please [file an
 issue](https://github.com/dansanderson/c-autotools-template/issues). [Pull
 requests](https://github.com/dansanderson/c-autotools-template/pulls) are also
 welcome, though please pardon me if I take a while to respond.
+
+See also [my blog entry on this
+subject](https://dansanderson.com/lab-notes/autotools-in-2022/).
 
 Thanks!
 

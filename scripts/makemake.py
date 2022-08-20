@@ -97,8 +97,12 @@ CLEANFILES += tests/runners/runner_test_*.c
 
 ''' # noqa
 
+# (These are not pattern rules because they don't need to be, but also because
+# the generated rules will substitute the module name more than once in the
+# path, which is not possible in a pattern rule.)
 RUNNER_GENERATION_CMDS = '''\
 \t@test -n "$(RUBY)" || { echo "\\nPlease install Ruby to run tests.\\n"; exit 1; }
+\tmkdir -p tests/runners
 \t$(RUBY) $(top_srcdir)/third-party/CMock/vendor/unity/auto/generate_test_runner.rb $< $@
 ''' # noqa
 
@@ -266,7 +270,7 @@ def render_mock(mod):
     parts.append(render_listvar(
         'check_LTLIBRARIES', [f'lib{mod.library}_mock.la'], is_concat=True))
     parts.append(render_listvar(
-        f'lib{mod.library}_mock_la_SOURCES',
+        f'nodist_lib{mod.library}_mock_la_SOURCES',
         [f'tests/mocks/mock_{mod.name}.c']))
     parts.append(render_listvar(
         f'lib{mod.library}_mock_la_CPPFLAGS',
@@ -278,11 +282,6 @@ def render_mock(mod):
 
     parts.append(render_listvar(
         'CLEANFILES',
-        [f'tests/mocks/mock_{mod.library}.c',
-         f'tests/mocks/mock_{mod.library}.h'],
-        is_concat=True))
-    parts.append(render_listvar(
-        'BUILT_SOURCES',
         [f'tests/mocks/mock_{mod.library}.c',
          f'tests/mocks/mock_{mod.library}.h'],
         is_concat=True))
@@ -309,27 +308,36 @@ def render_tests(mod):
             RUNNER_GENERATION_CMDS)
 
         test_srcs = [
-            f'tests/runners/runner_{test_base}.c',
             f'{mod.tests_dir}/{test_base}.c',
             f'{mod.source_dir}/{mod.library}.h']
+        test_srcs = [d[2:] if d.startswith('./') else d for d in test_srcs]
         parts.append(render_listvar(
             f'tests_runners_{test_base}_SOURCES', test_srcs))
 
         built_sources = (
+            [f'tests/runners/runner_{test_base}.c'] +
             [f'tests/mocks/mock_{d}.c' for d in mod.deps] +
             [f'tests/mocks/mock_{d}.h' for d in mod.deps])
-        if built_sources:
-            parts.append(render_listvar(
-                f'nodist_tests_runners_{test_base}_SOURCES', built_sources))
-            parts.append(
-                f'tests/runners/{test_base}-runner_{test_base}' +
-                '.$(OBJEXT): \\\n    ' +
-                ' \\\n    '.join(built_sources) +
-                '\n')
-
-        deplibs = [f'libcmock.la lib{mod.library}.la']
+        deplibs = ['libcmock.la', f'lib{mod.library}.la']
         for d in mod.deps:
             deplibs.append(f'lib{d}_mock.la')
+        gen_dependencies = built_sources + deplibs
+
+        parts.append(render_listvar(
+            f'nodist_tests_runners_{test_base}_SOURCES', built_sources))
+        first_src_target = (
+            f'{mod.tests_dir}/runners_{test_base}-{test_base}.$(OBJEXT)')
+        first_src_target = (
+            first_src_target[2:] if first_src_target.startswith('./')
+            else first_src_target)
+        parts.append(
+            f'{first_src_target}: \\\n    ' +
+            ' \\\n    '.join(gen_dependencies) +
+            '\n')
+        parts.append(render_listvar(
+            'CLEANFILES',
+            [f'tests/runners/runner_{test_base}.c'],
+            is_concat=True))
         parts.append(render_listvar(
             f'tests_runners_{test_base}_LDADD', deplibs))
 

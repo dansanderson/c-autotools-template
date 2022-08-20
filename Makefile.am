@@ -62,7 +62,7 @@ tests/mocks/mock_cfgfile.c tests/mocks/mock_cfgfile.h: ./src/cfgfile/cfgfile.h
 
 check_LTLIBRARIES += libcfgfile_mock.la
 
-libcfgfile_mock_la_SOURCES = tests/mocks/mock_cfgfile.c
+nodist_libcfgfile_mock_la_SOURCES = tests/mocks/mock_cfgfile.c
 
 libcfgfile_mock_la_CPPFLAGS = \
     $(CMOCK_CPPFLAGS) \
@@ -75,22 +75,29 @@ CLEANFILES += \
     tests/mocks/mock_cfgfile.c \
     tests/mocks/mock_cfgfile.h
 
-BUILT_SOURCES += \
-    tests/mocks/mock_cfgfile.c \
-    tests/mocks/mock_cfgfile.h
-
 check_PROGRAMS += tests/runners/test_cfgfile
 
 tests/runners/runner_test_cfgfile.c: ./tests/cfgfile/test_cfgfile.c
 	@test -n "$(RUBY)" || { echo "\nPlease install Ruby to run tests.\n"; exit 1; }
+	mkdir -p tests/runners
 	$(RUBY) $(top_srcdir)/third-party/CMock/vendor/unity/auto/generate_test_runner.rb $< $@
 
 tests_runners_test_cfgfile_SOURCES = \
-    tests/runners/runner_test_cfgfile.c \
-    ./tests/cfgfile/test_cfgfile.c \
-    ./src/cfgfile/cfgfile.h
+    tests/cfgfile/test_cfgfile.c \
+    src/cfgfile/cfgfile.h
 
-tests_runners_test_cfgfile_LDADD = libcmock.la libcfgfile.la
+nodist_tests_runners_test_cfgfile_SOURCES = tests/runners/runner_test_cfgfile.c
+
+tests/cfgfile/runners_test_cfgfile-test_cfgfile.$(OBJEXT): \
+    tests/runners/runner_test_cfgfile.c \
+    libcmock.la \
+    libcfgfile.la
+
+CLEANFILES += tests/runners/runner_test_cfgfile.c
+
+tests_runners_test_cfgfile_LDADD = \
+    libcmock.la \
+    libcfgfile.la
 
 tests_runners_test_cfgfile_CPPFLAGS = \
     $(CMOCK_CPPFLAGS) \
@@ -116,7 +123,7 @@ tests/mocks/mock_executor.c tests/mocks/mock_executor.h: ./src/executor/executor
 
 check_LTLIBRARIES += libexecutor_mock.la
 
-libexecutor_mock_la_SOURCES = tests/mocks/mock_executor.c
+nodist_libexecutor_mock_la_SOURCES = tests/mocks/mock_executor.c
 
 libexecutor_mock_la_CPPFLAGS = \
     $(CMOCK_CPPFLAGS) \
@@ -129,31 +136,35 @@ CLEANFILES += \
     tests/mocks/mock_executor.c \
     tests/mocks/mock_executor.h
 
-BUILT_SOURCES += \
-    tests/mocks/mock_executor.c \
-    tests/mocks/mock_executor.h
-
 check_PROGRAMS += tests/runners/test_executor
 
 tests/runners/runner_test_executor.c: ./tests/executor/test_executor.c
 	@test -n "$(RUBY)" || { echo "\nPlease install Ruby to run tests.\n"; exit 1; }
+	mkdir -p tests/runners
 	$(RUBY) $(top_srcdir)/third-party/CMock/vendor/unity/auto/generate_test_runner.rb $< $@
 
 tests_runners_test_executor_SOURCES = \
-    tests/runners/runner_test_executor.c \
-    ./tests/executor/test_executor.c \
-    ./src/executor/executor.h
+    tests/executor/test_executor.c \
+    src/executor/executor.h
 
 nodist_tests_runners_test_executor_SOURCES = \
+    tests/runners/runner_test_executor.c \
     tests/mocks/mock_cfgfile.c \
     tests/mocks/mock_cfgfile.h
 
-tests/runners/test_executor-runner_test_executor.$(OBJEXT): \
+tests/executor/runners_test_executor-test_executor.$(OBJEXT): \
+    tests/runners/runner_test_executor.c \
     tests/mocks/mock_cfgfile.c \
-    tests/mocks/mock_cfgfile.h
+    tests/mocks/mock_cfgfile.h \
+    libcmock.la \
+    libexecutor.la \
+    libcfgfile_mock.la
+
+CLEANFILES += tests/runners/runner_test_executor.c
 
 tests_runners_test_executor_LDADD = \
-    libcmock.la libexecutor.la \
+    libcmock.la \
+    libexecutor.la \
     libcfgfile_mock.la
 
 tests_runners_test_executor_CPPFLAGS = \
@@ -193,7 +204,7 @@ tests/mocks/mock_reporter.c tests/mocks/mock_reporter.h: ./src/reporter/reporter
 
 check_LTLIBRARIES += libreporter_mock.la
 
-libreporter_mock_la_SOURCES = tests/mocks/mock_reporter.c
+nodist_libreporter_mock_la_SOURCES = tests/mocks/mock_reporter.c
 
 libreporter_mock_la_CPPFLAGS = \
     $(CMOCK_CPPFLAGS) \
@@ -203,10 +214,6 @@ libreporter_mock_la_CPPFLAGS = \
 libreporter_mock_la_LIBADD = libcmock.la
 
 CLEANFILES += \
-    tests/mocks/mock_reporter.c \
-    tests/mocks/mock_reporter.h
-
-BUILT_SOURCES += \
     tests/mocks/mock_reporter.c \
     tests/mocks/mock_reporter.h
 
@@ -228,7 +235,7 @@ tests/mocks/mock_testmod.c tests/mocks/mock_testmod.h: ./src/testmod/testmod.h
 
 check_LTLIBRARIES += libtestmod_mock.la
 
-libtestmod_mock_la_SOURCES = tests/mocks/mock_testmod.c
+nodist_libtestmod_mock_la_SOURCES = tests/mocks/mock_testmod.c
 
 libtestmod_mock_la_CPPFLAGS = \
     $(CMOCK_CPPFLAGS) \
@@ -241,22 +248,29 @@ CLEANFILES += \
     tests/mocks/mock_testmod.c \
     tests/mocks/mock_testmod.h
 
-BUILT_SOURCES += \
-    tests/mocks/mock_testmod.c \
-    tests/mocks/mock_testmod.h
-
 check_PROGRAMS += tests/runners/test_testmod
 
 tests/runners/runner_test_testmod.c: ./tests/testmod/test_testmod.c
 	@test -n "$(RUBY)" || { echo "\nPlease install Ruby to run tests.\n"; exit 1; }
+	mkdir -p tests/runners
 	$(RUBY) $(top_srcdir)/third-party/CMock/vendor/unity/auto/generate_test_runner.rb $< $@
 
 tests_runners_test_testmod_SOURCES = \
-    tests/runners/runner_test_testmod.c \
-    ./tests/testmod/test_testmod.c \
-    ./src/testmod/testmod.h
+    tests/testmod/test_testmod.c \
+    src/testmod/testmod.h
 
-tests_runners_test_testmod_LDADD = libcmock.la libtestmod.la
+nodist_tests_runners_test_testmod_SOURCES = tests/runners/runner_test_testmod.c
+
+tests/testmod/runners_test_testmod-test_testmod.$(OBJEXT): \
+    tests/runners/runner_test_testmod.c \
+    libcmock.la \
+    libtestmod.la
+
+CLEANFILES += tests/runners/runner_test_testmod.c
+
+tests_runners_test_testmod_LDADD = \
+    libcmock.la \
+    libtestmod.la
 
 tests_runners_test_testmod_CPPFLAGS = \
     $(CMOCK_CPPFLAGS) \
